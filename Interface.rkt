@@ -1,3 +1,4 @@
+
 #lang racket
 (require racket/gui/base)
 
@@ -7,12 +8,15 @@
 
 (define frame (new frame%
                    [label "CatarCEQualifiers"]
-                   [width 300]
-                   [height 300]))
+                   [width 975]
+                   [height 640]))
 (new canvas% [parent frame]
              [paint-callback
               (lambda (canvas dc)
-                (send dc set-scale 3 3)
+                (send dc set-scale 1 1)
+                (send dc draw-bitmap the-bitmap 0 0)
                 (send dc set-text-foreground "blue")
-                (send dc draw-text "Don't Panic!" 0 0))])
+                (send dc draw-text "●" 0 0))
+              ])
+
 (send frame show #t)
