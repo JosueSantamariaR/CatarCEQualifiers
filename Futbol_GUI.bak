@@ -3,10 +3,10 @@
 
 ; Definir la imagen de fondo
 (define the-bitmap
-  (make-object bitmap% "background.jpg"))
+  (make-object bitmap% ""))
 
 (define frame (new frame%
-                   [label "CatarCEQualifiers"]
+                   [label "Example"]
                    [width 300]
                    [height 300]))
 (new canvas% [parent frame]
