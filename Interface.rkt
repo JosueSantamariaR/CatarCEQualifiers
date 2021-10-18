@@ -1,4 +1,3 @@
-
 #lang racket
 (require graphics/graphics)
 (require 2htdp/image)
@@ -17,20 +16,21 @@
 #|
 
 --------------------------------------Definicion para dibujar la cancha----------------------------------------
-
-Se dibuja cada parte de la cancha utilizando rectangulos y elipses
+Def: Se crea un rectangulo de 1220 x 720 de color negro y se asigna la posicion 0,0.
+Se coloca la imagen que refleja la cancha.
 |#
 (define (dibujarCancha)
   (begin
-    ((draw-solid-rectangle mapaDePixeles) (make-posn 0 0) 1220 720 "black") ;;Fondo
-    ((draw-pixmap mapaDePixeles) "background.jpg" (make-posn 0 0))
-   
-   
+    ((draw-solid-rectangle mapaDePixeles) (make-posn 0 0) 1220 720 "black")
+    ((draw-pixmap mapaDePixeles) "background.jpg" (make-posn 0 0)) 
     ))
 
-;;Borra la pantalla 2 y pega la pantalla 2 en la principal.
-;;E: No tiene.
-;;S: Borra la pantalla y la pega en la principal.
+
+#|
+
+--------------------------------------Definicion para dibujar en la ventana----------------------------------------
+Def: Se copia lo que hay en la ventana y se limpia el mapa de pixeles.
+|#
 (define (drawWindow)
   (begin
     (copy-viewport mapaDePixeles ventana)
