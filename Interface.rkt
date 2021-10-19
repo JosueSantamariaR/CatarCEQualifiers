@@ -13,19 +13,36 @@
 (define pixMap (open-pixmap "CatarCEQualifiers" 1220 640))
 
 
+
+(define playersFirstGen '(((300 150) (375 50) 13) ((400 300) (150 150) 16) ((300 200) (100 450) 20)  ))
+
+(define ball '((450 260) ))
+
+
+
+(define (writeStrings points generation)
+  (begin
+    ;;(overlay/xy texto 430 600 linea)
+    ((draw-string pixMap) (make-posn 830 200) (number->string (car points)) "white")
+    ((draw-string pixMap) (make-posn 890 200) (number->string (cadr points)) "white")
+    ((draw-string pixMap) (make-posn 1000 50) "Generation: " "white")
+    ((draw-string pixMap) (make-posn 1200 215) (number->string generation) "white")
+    ))
+
+
+
 #|
 
 --------------------------------------Definicion para dibujar la cancha----------------------------------------
 Def: Se crea un rectangulo de 1220 x 720 de color negro y se asigna la posicion 0,0.
 Se coloca la imagen que refleja la cancha.
+
 |#
 (define (drawField)
   (begin
-    ((draw-solid-rectangle pixMap) (make-posn 0 0) 1220 720 "white")
+    ((draw-solid-rectangle pixMap) (make-posn 0 0) 1220 720 "black")
     ((draw-pixmap pixMap) "background.jpg" (make-posn 0 0)) 
     ))
-
-
 #|
 
 --------------------------------------Definicion para dibujar en la ventana----------------------------------------
@@ -43,75 +60,110 @@ Def: Se copia lo que hay en la ventana y se limpia el mapa de pixeles.
 Def: Se definen los getters que se utilizan para los jugadores
 |#
 
+(define (posX jugador)
+  (caar jugador))
 
-(define (getXY player);Obtener posición inicial del jugador.
-  (cond((or (null? player) (number? player)) '(50 50))
-       (else
-        (car player))))
+(define (posY jugador)
+  (cadar jugador))
 
-(define (getFinaXY player);Obtener posición final del jugador.
-  (cond((null? player) '())
-       (else
-        (cadr player))))
+(define (destinoX jugador)
+  (caadr jugador))
 
-(define (posX player);Obtener posición inicial en coordena X del jugador.
-  (car (getXY player)))
+(define (destinoY jugador)
+  (car (cdadr jugador)))
 
-(define (posY player);Obtener posición inicial en coordena Y del jugador.
-  (cadr (getXY player)))
 
-(define (finalX player);Obtener posición final en coordena X del jugador.
-  (car (getFinaXY player)))
+(define (terminoMovimiento jugador)
+  (cons (list (destinoX jugador) (destinoY jugador)) (cdr jugador)))
 
-(define (finalY player);Obtener posición final en coordena Y del jugador.
-  (cadr (getFinaXY player)))
+(define (hipotenusa jugador)
+  (sqrt (+ (expt (- (destinoX jugador) (posX jugador)) 2)
+          (expt (- (destinoY jugador) (posY jugador)) 2)))
+  )
 
-(define (getNextPlayer players);Obtener siguiente jugador de la lista.
-  (cond ((null? players) '())
-        (else (car players))
+(define (movimientoX jugadores step diagonal angulo)
+  (+ (posX (car jugadores)) (* step (cos (degrees->radians angulo))))
+  )
+
+(define (movimientoY jugadores step diagonal angulo)
+  (+ (posY (car jugadores)) (* step (sin (degrees->radians angulo))))
+  )
+
+
+
+(define (getNextPlayer jugadores)
+  (cond ((null? (cdr jugadores))
+         (car jugadores))
+        (else (cadr jugadores))
         ))
+
+
+(define (pendiente jugador)
+  (/ (- (destinoY jugador) (posY jugador)) (- (destinoX jugador) (posX jugador))))
+
+(define (obtenerAnguloAux jugador)
+  (list (- (destinoY jugador) (posY jugador)) (- (destinoX jugador) (posX jugador))))
+
+
+(define (obtenerAngulo jugador)
+  (cond
+    ((and (< (car (obtenerAnguloAux jugador)) 0) (< (cadr (obtenerAnguloAux jugador)) 0))
+     (- (radians->degrees (atan (pendiente jugador))) 180)
+     )
+    ((and (> (car (obtenerAnguloAux jugador)) 0) (< (cadr (obtenerAnguloAux jugador)) 0))
+     (+ (radians->degrees (atan (pendiente jugador))) 180)
+     )
+    (else (radians->degrees (atan (pendiente jugador))))
+    )
+  )
+
 
 (define (getPlayerNumber player);Obtener el numero para cada jugador de la lista.
   (cond((null? player) '())
        (else
         (getPlayerNumber_aux player 0)
   )))
+
+
 (define (getPlayerNumber_aux player number)
   (cond((equal? number 4) (car player))
        (else
         (getPlayerNumber_aux (cdr player) (+ number 1)))))
 
 
-#|
 
---------------------------------------Definicion para dibujar en la ventana----------------------------------------
-Def: Se copia lo que hay en la ventana y se limpia el mapa de pixeles.
-|#
-
-(define (drawTeam players number)  
-  (cond ((null? players) #t)
-        (else (begin
-                ((draw-solid-ellipse pixMap)
-                 (make-posn (posX (car players))
-                            (posY (car players)))30 30
-                            (getTeam (car players)))
-                ((draw-string pixMap)
-                 (make-posn (+ (caaar players) 13)
-                            (+ (cadar (car players)) 15))
-                 (number->string (getPlayerNumber
-                                  (car players))) "white")
-                (drawTeam (cdr players)
-                                  (+ 1 number))
-                ))))
-#|
-
---------------------------------------Definicion para dibujar en la ventana----------------------------------------
-Def: Se copia lo que hay en la ventana y se limpia el mapa de pixeles.
-|#
-(define (getTeam player)
-  (caddr (cdddr player)))
-(drawTeam)
-(drawField)
-(drawWindow)
+(define (dibujarJugadores jugadores number)  
+  (begin
+    (cond ((null? jugadores) #t)
+          (else (begin
+                  (((draw-pixmap-posn "player2.png") pixMap) (make-posn (posX (car jugadores)) (posY (car jugadores))))
+                  ((draw-string pixMap) (make-posn (+ (caaar jugadores) 13) (+ (cadar (car jugadores)) 15)) (number->string number) "white")
+                  (dibujarJugadores (cdr jugadores) (+ 1 number))
+                  )))
+    ))
 
 
+
+(define (start)
+  (begin
+    (drawField)
+    (writeStrings '(1 0) 12)
+
+    ;(moverJugadores players 0 '() (hipotenusa (car players)) (obtenerAngulo (car players)) )
+    (writeStrings '(1 1) 17)
+    (dibujarJugadores '(((300 250) (800 250))
+                        ((300 300) (450 300))
+                        ((300 350) (350 350))
+                        ((300 400) (550 450))
+                        ((350 410) (550 450))
+                        ((350 420) (540 460))
+                        ((350 430) (560 470))
+                  
+                        ) 1)
+    
+    (copy-viewport pixMap mainWindow)
+    ((clear-viewport pixMap))
+    
+    ))
+
+(start)
