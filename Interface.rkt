@@ -8,6 +8,270 @@
 (open-graphics)
 
 
+(define (move listTGrande)
+  (move-aux (cadr (divideteams (car listTGrande))) (car (divideteams (car listTGrande))) (cadr listTGrande))
+  )
+
+(define (move-aux playeres playeres_S ball)
+  (cond((or (null? playeres) (null? playeres)) '())
+       (else
+        (list (move_playeres playeres '() ball) (move_playeres_S playeres_S '() ball)))))
+
+(define (move_playeres_S playeres listF ball)
+  (cond ((null? playeres) listF)
+        (else
+         (move_playeres_S (cdr playeres) (append listF (list (move_to_ball_S (car playeres) listF  ball))) ball))))
+
+
+(define(check_Type_S player posXYf)
+  (cond((equal? (getNumType player) 1) (moveGoalkeeper_S player posXYf))
+       ((equal? (getNumType player) 2) (moveDefense_S player posXYf))
+       ((equal? (getNumType player) 3) (moveMidfielder_S player posXYf))
+       ((equal? (getNumType player) 4) (moveForward_S player posXYf))))
+
+(define (moveGoalkeeper_S player posXYf)
+  (cond ((not (equal? (car posXYf) 895)) (moveGoalkeeper_S player (cons 895 (cdr posXYf))))
+        ((< (cadr posXYf) 180) (moveGoalkeeper_S player (list 895 180)))
+        ((> (cadr posXYf) 330) (moveGoalkeeper_S player (list 895 330)))
+        (else
+         (append (list (car player)) (list posXYf) (cddr player)))))
+
+(define (moveForward_S player posXYf)
+  
+  (cond 
+    ((> (car posXYf) 230) (moveForward_S player (list 230 (cadr posXYf))))
+        (else
+         {append (list (car player)) (list posXYf) (cddr player)})))
+
+
+(define (moveMidfielder_S player posXYf)
+  (cond ((< (car posXYf) 230) (moveMidfielder_S player (list 230 (cadr posXYf))))
+        ((> (car posXYf) 690) (moveMidfielder_S player (list 690 (cadr posXYf))))
+        (else
+         {append (list (car player)) (list posXYf) (cddr player)})))
+
+
+(define (moveDefense_S player posXYf)
+  (cond ((< (car posXYf) 690) (moveDefense_S player (list 690 (cadr posXYf))) )
+        ((> (car posXYf) 900) (moveDefense_S player (list 900 (cadr posXYf))))
+        (else
+         {append (list (car player)) (list posXYf) (cddr player)})))
+
+
+
+(define (move_to_ball_S  player listF ball)
+ (cond ((and (<= (abs (- (car(getXY player)) (caar ball))) (+ (* (getAgility player) 15) 150))
+             (<= (abs (- (cadr(getXY player)) (cadar ball))) (+ (* (getAgility player) 15) 150))
+             (check_other_player (car ball) listF))
+        (check_Type_S player  (car ball)))
+        
+       ((equal? (getNumType player) 1)
+        (moveGoalkeeper_S player (list 895 (+ (random 150) 180) )))
+       ((equal? (getNumType player) 4)
+        (moveForward_S player (list  (+ (random 225) 5) (+ (random 505) 5) )))
+       
+       ((equal? (getNumType player) 3)
+        (moveMidfielder_S player (list (+ (random 460) 230) (+ (random 505) 5) )))
+       ((equal? (getNumType player) 2)
+        (moveDefense_S player (list (+ (random 210) 690) (+ (random 505) 5) )))
+         
+       ))
+
+
+(define (move_playeres playeres listF ball)
+  (cond ((null? playeres) listF)
+        (else
+         (move_playeres (cdr playeres) (append listF (list (move_to_ball (car playeres) listF ball))) ball))))
+
+
+(define(check_Type player posXYf )
+  
+  (cond((equal? (getNumType player) 1) (moveGoalkeeper player posXYf))
+       ((equal? (getNumType player) 2) (moveDefense player posXYf))
+       ((equal? (getNumType player) 3) (moveMidfielder player posXYf))
+       ((equal? (getNumType player) 4) (moveForward player posXYf))))
+       
+
+(define (moveGoalkeeper player posXYf)
+  (cond ((not (equal? (car posXYf) 5)) (moveGoalkeeper player (cons 5(cdr posXYf))))
+        ((< (cadr posXYf) 180) (moveGoalkeeper player (list 5 180)))
+        ((> (cadr posXYf) 330) (moveGoalkeeper player (list 5 330)))
+        (else
+         (append (list (car player)) (list posXYf) (cddr player)))))
+
+
+(define (moveDefense player posXYf)
+  
+  (cond 
+    ((> (car posXYf) 230) (moveDefense player (list 230 (cadr posXYf))))
+        (else
+         {append (list (car player)) (list posXYf) (cddr player)})))
+
+
+(define (moveMidfielder player posXYf)
+  (cond ((< (car posXYf) 230) (moveMidfielder player (list 230 (cadr posXYf))))
+        ((> (car posXYf) 690) (moveMidfielder player (list 690 (cadr posXYf))))
+        (else
+         {append (list (car player)) (list posXYf) (cddr player)})))
+
+
+(define (moveForward player posXYf)
+  (cond ((< (car posXYf) 690) (moveMidfielder player (list 690 (cadr posXYf))) )
+        ((> (car posXYf) 900) (moveMidfielder player (list 900 (cadr posXYf))))
+        (else
+         {append (list (car player)) (list posXYf) (cddr player)})))
+
+
+
+(define (move_to_ball  player listF ball)
+ (cond ((and (<= (abs (- (car(getXY player)) (caar ball))) (+ (* (getAgility player) 15) 150))
+             (<= (abs (- (cadr(getXY player)) (cadar ball))) (+ (* (getAgility player) 15) 150))
+             (check_other_player (car ball) listF))
+        (check_Type player  (car ball)))
+        
+       ((equal? (getNumType player) 1)
+        (moveGoalkeeper player (list 5 (+ (random 150) 180) )))
+       ((equal? (getNumType player) 2)
+        (moveDefense player (list  (+ (random 225) 5) (+ (random 505) 5) )))
+         
+       ((equal? (getNumType player) 3)
+        (moveMidfielder player (list (+ (random 460) 230) (+ (random 505) 5) )))
+       ((equal? (getNumType player) 4)
+        (moveForward player (list (+ (random 210) 690) (+ (random 505) 5) )))
+       ))
+
+        
+(define (check_other_player posXYf listF)
+  (cond((null? listF) #t)
+       ((equal? (getXYf (car listF)) posXYf) #f)
+       (else
+       
+        (check_other_player posXYf (cdr listF)))))
+
+
+(define (getXY player)
+  (cond((or (null? player) (number? player)) '(50 50))
+       (else
+        (car player))))
+
+
+(define (getXYf player)
+  (cond((null? player) '())
+       (else
+        (cadr player))))
+
+(define (getEst player)
+  (cond ((null? player)
+         '())
+        (else
+         (getEst_aux player 0))))
+(define (getEst_aux player num)
+  (cond((equal? num 2) (car player))
+       (else
+        (getEst_aux (cdr player) (+ num 1)))))
+
+(define (getfitness player)
+  (cond((null? player) '())
+       (else
+        (car (getEst player))
+  )))
+
+
+(define (getStrength player)
+  (cond((null? player) '())
+       (else
+        (getStrength_aux (getEst player) 0)
+  )))
+(define (getStrength_aux estadistica num)
+  (cond((equal? num 1) (car estadistica))
+       (else
+        (getStrength_aux (cdr estadistica) (+ num 1)))))
+
+
+(define (getAim player)
+  (cond((null? player) '())
+       (else
+        (getAim_aux (getEst player) 0)
+  )))
+(define (getAim_aux estadistica num)
+  (cond((equal? num 2) (car estadistica))
+       (else
+        (getAim_aux (cdr estadistica) (+ num 1)))))
+
+
+(define (getSpeed player)
+  (cond((null? player) '())
+       (else
+        (getSpeed_aux (getEst player) 0)
+  )))
+(define (getSpeed_aux estadistica num)
+  (cond((equal? num 3) (car estadistica))
+       (else
+        (getSpeed_aux (cdr estadistica) (+ num 1)))))
+
+
+(define (getAgility player)
+  (cond((null? player) '())
+       (else
+        (getAgility_aux (getEst player) 0)
+  )))
+(define (getAgility_aux estadistica num)
+  (cond((equal? num 4) (car estadistica))
+       (else
+        (getAgility_aux (cdr estadistica) (+ num 1)))))
+
+
+(define (getNumType player)
+  (cond((null? player) '())
+       (else
+        (getNumType_aux player 0)
+  )))
+
+(define (getNumType_aux player num)
+  (cond((equal? num 3) (car player))
+       (else
+        (getNumType_aux (cdr player) (+ num 1)))))
+
+(define (getNum player)
+  (cond((null? player) '())
+       (else
+        (getNum_aux player 0)
+  )))
+
+(define (getNum_aux player num)
+  (cond((equal? num 4) (car player))
+       (else
+        (getNum_aux (cdr player) (+ num 1)))))
+
+
+(define (divideteamsAux playeres num new)
+  (cond ((> num 10) (list new playeres))
+        (else (divideteamsAux (cdr playeres) (+ num 1) (cons (car playeres) new)) ))
+  )
+
+(define (divideteams playeres)
+  (begin
+    (divideteamsAux playeres 0 '() )
+    ))
+
+(define (directionShoot-aux player marco)
+  
+    (cond ((null? player)
+         '())
+        (else
+          (+ (* (/ (- (getAim player) 10) -0.2222) (expt -1 (random 2))) marco)  )
+        )
+    )
+
+(define (directionShoot player)
+  (cond ((equal? (getteam player) "blue")
+         (directionShoot-aux player (getDirection (list (getXY player) '(0 250)))))
+        (else
+         (directionShoot-aux player (getDirection (list (getXY player) '(920 250))))
+         ))
+  )
+
+
 #|
 -------------------------------------Aptitud--------------------------------------
 Def: Se 
@@ -279,13 +543,9 @@ las mismas dimensiones.
 
 #|
 --------------------------------------Definicion de elementos iniciales----------------------------------------
-Def: Se crea la primera generacionde jugadores y la bola con la fuerza, distancia
+Def: Se crea la primera bola con la fuerza, distancia, direccion
 |#
-(define playersFirstGen '(((300 150) (375 50) 13)
-                          ((400 300) (150 150) 16)
-                          ((300 200) (100 450) 20)
-                          ))
-(define ball '((450 260) ))
+(define firstBall '((450 260) 0 45))
 
 
 
@@ -294,14 +554,13 @@ Def: Se crea la primera generacionde jugadores y la bola con la fuerza, distanci
 Def: Esta definicion nos permite escribir en la ventana de pixMap lo que son los marcadores y la generacion
 del algoritmo genetico.
 |#
-(define (writeStrings points generation)
+(define (writeStrings points generacion)
   (begin
-   
     ((draw-string pixMap) (make-posn 1050 30) "Current Score: " "cyan")
     ((draw-string pixMap) (make-posn 990 60) (number->string (car points)) "cyan")
     ((draw-string pixMap) (make-posn 1190 60) (number->string (cadr points)) "cyan")
     ((draw-string pixMap) (make-posn 1020 150) "Generation: " "cyan")
-    ((draw-string pixMap) (make-posn 1150 150) (number->string generation) "cyan")
+    ((draw-string pixMap) (make-posn 1150 150) (number->string generacion) "cyan")
     ))
 
 
@@ -341,71 +600,78 @@ Def: Se definen los getters que se utilizan para obtener la posicion inicial,fin
 hipotenusa
 |#
 
-(define (getX player)
-  (caar player))
+(define (posX player)
+  (car (getXY player)))
 
-(define (getY player)
-  (cadar player))
+(define (posY player)
+  (cadr (getXY player)))
 
-(define (getFinalX player)
-  (caadr player))
+(define (destinationX player)
+  (car (getXYf player)))
 
-(define (getFinalY player)
-  (car (cdadr player)))
+(define (destinationY player)
+  (cadr (getXYf player)))
 
+(define (getteam player)
+  (caddr (cdddr player)))
 
 ; Se utilizan las posiciones finales del jugadores para obtener el movimiento final
-(define (finishMove player)
-  (cons (list (getFinalX player) (getFinalY player)) (cdr player)))
+(define (changeMovement player)
+  (cons (list (destinationX player) (destinationY player)) (cdr player)))
 
 ;Se obtiene la hipotenusa para calcular el movimiento.
-(define (moveLine player)
-  (sqrt (+ (expt (- (getFinalX player) (getX player)) 2)
-          (expt (- (getFinalY player) (getY player)) 2)))
-  )
+(define (hypotenuse player)
+  (cond ((null? player) 0)
+        (else (sqrt (+ (expt (- (destinationX player) (posX player)) 2)
+          (expt (- (destinationY player) (posY player)) 2))))
+        ))
 
 ;Definicion para el movimiento del jugador en X.
-(define (moveInX players step diagonal angle)
-  (+ (getX (car players)) (* step (cos (degrees->radians angle))))
+(define (movementX playeres step diagonal direction)
+  (cond ((null? playeres) 0)
+        (else (+ (posX (car playeres)) (* step (cos (degrees->radians direction))))))
   )
 
 ;Definicion para el movimiento del jugador en Y.
-(define (moveInY players step diagonal angle)
-  (+ (getY (car players)) (* step (sin (degrees->radians angle))))
+(define (movementY playeres step diagonal direction)
+  (cond ((null? playeres) 0)
+        (else (+ (posY (car playeres)) (* step (sin (degrees->radians direction))))))
   )
 
 
 ;Definicion de la funcion para obtener el jugador siguiente
-(define (getNextPlayer players)
-  (cond ((null? (cdr players))
-         (car players))
-        (else (cadr players))
+(define (getNextPlayer playeres)
+  (cond ((null? playeres) '())
+        (else (car playeres))
         ))
 
 
 ;Pendiente del jugador para la obtencion de los angulos
 (define (slope player)
-  (/ (- (getFinalY player) (getY player)) (- (getFinalX player) (getX player))))
+  (cond ((zero? (- (destinationX player) (posX player)))
+         (/ (- (destinationY player) (posY player)) 0.5))
+        (else (/ (- (destinationY player) (posY player)) (- (destinationX player) (posX player))))
+        )
+  )
+
+;Funcion Auxiliar para el angulo.
+(define (getDirectionAux player)
+  (list (- (destinationY player) (posY player)) (- (destinationX player) (posX player))))
 
 
 ;Funcion Auxiliar para el angulo.
-(define (getAngleAux player)
-  (list (- (getFinalY player) (getY player)) (- (getFinalX player) (getX player))))
-
-
-;Funcion Auxiliar para el angulo.
-(define (getAngle player)
+(define (getDirection player)
   (cond
-    ((and (< (car (getAngleAux player)) 0) (< (cadr (getAngleAux player)) 0))
+    ((null? player) 0)
+    ((and (< (car (getDirectionAux player)) 0) (< (cadr (getDirectionAux player)) 0))
      (- (radians->degrees (atan (slope player))) 180)
      )
-    ((and (> (car (getAngleAux player)) 0) (< (cadr (getAngleAux player)) 0))
+    ((and (> (car (getDirectionAux player)) 0) (< (cadr (getDirectionAux player)) 0))
      (+ (radians->degrees (atan (slope player))) 180)
      )
     (else (radians->degrees (atan (slope player))))
     )
   )
-
 ;Obtener el numero para cada jugador de la lista.
 (define (getPlayerNumber player)
   (cond((null? player) '())
@@ -427,94 +693,228 @@ Def: Se define la funcion que nos permite dibujar los jugadores y el numero corr
 jugador.
 |#
 
-(define (drawPlayers players number)  
-  (begin
-    (cond ((null? players) #t)
-          (else (begin
-                  (((draw-pixmap-posn "player2.png") pixMap) (make-posn (getX (car players)) (getY (car players))))
-                  ((draw-string pixMap) (make-posn (+ (caaar players) 10) (+ (cadar (car players)) 10)) (number->string number) "cyan")
-                  (drawPlayers (cdr players) (+ 1 number))
-                  )))
+(define (drawplayeres playeres number)  
+  (cond ((null? playeres) #t)
+        (else (begin
+              (cond 
+              ((equal? (getteam (car playeres)) "blue")
+                (begin
+                    (((draw-pixmap-posn "player2.png") pixMap) (make-posn (posX (car playeres)) (posY (car playeres))) (getteam (car playeres)))
+                    ((draw-string pixMap) (make-posn (+ (caaar playeres) 10) (+ (cadar (car playeres)) 10)) (number->string (getNum (car playeres))) "cyan")
+                    (drawplayeres (cdr playeres) (+ 1 number))
+                  ))
+              (else
+                (begin
+                    (((draw-pixmap-posn "player1.png") pixMap) (make-posn (posX (car playeres)) (posY (car playeres))) (getteam (car playeres)))
+                    ((draw-string pixMap) (make-posn (+ (caaar playeres) 10) (+ (cadar (car playeres)) 10)) (number->string (getNum (car playeres))) "cyan")
+                    (drawplayeres (cdr playeres) (+ 1 number))
+                  ))
+                )
+                ))))
+
+(define (interseccionAux playeres ball)
+  (cond ((null? playeres) ball)
+        ((and (< (posX (car playeres)) (+ (posX ball) 20)) (< (posY (car playeres)) (+ (posY ball) 20))
+              (> (+ (posX (car playeres)) 30) (posX ball)) (> (+ (posY (car playeres)) 30) (posY ball)))  
+                                                        ;;Hay va el direction del player
+         (list (car ball) (+ 10 (getStrength (car playeres))) (directionShoot (car playeres)))
+         )
+        (else (interseccionAux (cdr playeres) ball)) 
+        )
+  )
+
+(define (interseccion player xm ym ball playeres)
+  (cond ((and (< xm (+ (posX ball) 20)) (< ym (+ (posY ball) 20)) (> (+ xm 30) (posX ball)) (> (+ ym 30) (posY ball)))
+                                                       ;;Hay va el direction del player 
+         (list (car ball) (+ 10 (getStrength player)) (directionShoot player))
+         )
+        (else (interseccionAux playeres ball))
+        ))
+
+(define (StrengthBall ball)
+  (cond ((not (list? ball)) 0)
+        (else (cadr ball))))
+
+(define (directionBall ball)
+  (cond ((number? ball) ball)
+        (else (caddr ball)))
+  )
+
+(define (verificaLimites ball)
+  (cond ((< (posY ball) 1)
+         (list (list (posX ball) 1) (StrengthBall ball) (+ (directionBall ball) 240)))
+        ((> (posY ball) 519)
+         (list (list (posX ball) 519) (StrengthBall ball) (- (directionBall ball) 240)))
+        ((and (< (posX ball) 1) (or (< (posY ball) 165) (> (posY ball) 360)))
+         (list (list 1 (posY ball)) (StrengthBall ball) (+ (directionBall ball) 240)))
+        ((and (> (posX ball) 889) (or (< (posY ball) 165) (> (posY ball) 360)))
+         (list (list 889 (posY ball)) (StrengthBall ball) (+ (directionBall ball) 240)))
+        (else ball)
     ))
 
+(define (verificarGol ball points playeres generaciones iteraciones)
+  (cond ((and (> (posX ball) 900) (or (> (posY ball) 165) (< (posY ball) 360)))
+         (playGameGol playeres generaciones (list (+ (car points) 1) (cadr points)) iteraciones))
+        ((and (< (posX ball) -5) (or (> (posY ball) 165) (< (posY ball) 360)))
+         (playGameGol playeres generaciones (list (car points) (+ (cadr points) 1)) iteraciones))
+        (else points)
+        )
+  )
+
+(define (cambiarStrengthBall ball)
+    (cond ((> (StrengthBall ball) 0)
+                                              ;;Duracion del Shoot
+           (verificaLimites (list
+                             (list (+ (posX ball) (* (StrengthBall ball) (cos (degrees->radians (directionBall ball)))))
+                                   (+ (posY ball) (* (StrengthBall ball) (sin (degrees->radians (directionBall ball))))))
+                             (- (StrengthBall ball) 0.3) (directionBall ball))))
+          ((number? ball) (begin
+                            (display "coso: ")
+                            (display ball) (newline)
+                            (cambiarStrengthBall (list (list 450 260) -1 0))
+                            ))
+          (else (list (car ball) (StrengthBall ball) (directionBall ball)))
+          ))
 
 
-
-#|
---------------------------------------Funcion movePlayers ----------------------------------------
-Def: Se define la funcion la cual nos permite mover los jugadores utilizando la diagonal y el angulo
-para cada uno de los jugadores.
-|#
-
-(define (movePlayers players step newPlayers diagonal angle)
-  (cond ((null? players) newPlayers)
-        ((< diagonal step)
+(define (drawBall ball)
+  (cond ((or (< (StrengthBall ball) 0) (zero? (StrengthBall ball)))
          (begin
-           (movePlayers (cdr players) 0
-                           (cons (finishMove (car players)) newPlayers)
-                           (moveLine (getNextPlayer players))
-                           (getAngle (getNextPlayer players))))
+           
+           (((draw-pixmap-posn "sprball.png") pixMap) (make-posn (posX ball) (posY ball)))
+           )
          )
         (else
          (begin
-           (display step)
-           (drawField)
-           (((draw-pixmap-posn "player2.png") pixMap) (make-posn (moveInX players step diagonal angle) (moveInY players step diagonal angle)))
-           (drawPlayers (append newPlayers (cdr players)) 1)
+           (((draw-pixmap-posn "sprball.png") pixMap) (make-posn (posX ball) (posY ball)))
+           )
+        )
+))
 
-           (copy-viewport pixMap mainWindow)
-           ((clear-viewport pixMap))
-
-           (movePlayers players (+ step 10) newPlayers diagonal angle)
-           ))
+(define (remplazarDestino playeres new ball)
+  (cond ((null? playeres) '())
+        ((equal? (getteam (car playeres)) "blue")
+         (append (cons (move_to_ball_S (car playeres) new ball) '()) (cdr playeres)))
+        (else
+         (append (cons (move_to_ball (car playeres) new ball) '()) (cdr playeres)))
         ))
 
+(define (getResto playeres)
+  (cond ((null? playeres) '())
+        (else (cdr playeres))
+        ))
+
+(define (estela-aux playeres step newplayeres diagonal direction ball points generaciones iteraciones)
+  (estela playeres 0
+          newplayeres
+          (hypotenuse (getNextPlayer playeres))
+          (getDirection (getNextPlayer playeres))
+          (cambiarStrengthBall (interseccion
+                              (getNextPlayer playeres)
+                              (movementX playeres step diagonal direction)
+                              (movementY playeres step diagonal direction)
+                              ball (append newplayeres (getResto playeres))))
+          points generaciones iteraciones))
 
 
 
-#|
---------------------------------------Funcion PlayGame ----------------------------------------
-Def: Se define la funcion PlayGame para la ejecucion y muestra de las funciones anteriormente realizadas
-
-|#
-
-(define (playGame)
+(define (estela playeres step newplayeres diagonal direction ball points generaciones iteraciones)
   (begin
     (drawField)
-    (writeStrings '(1 1) 17)
-    (movePlayers playersFirstGen 0 '() (moveLine (car playersFirstGen)) (getAngle (car playersFirstGen)) )
+    (writeStrings points generaciones)
+    (cond ((null? playeres)
+           (cond
+             ((not (< (StrengthBall ball) 0))
+               (begin
+                 (drawplayeres  newplayeres 1)
+                 (drawBall (interseccionAux newplayeres ball))
+                 (drawWindow)
+                 (estela '() 0 newplayeres 0 0
+                                 (cambiarStrengthBall (StrengthBall (interseccionAux newplayeres ball)))
+                                 (verificarGol ball points (append newplayeres playeres) generaciones iteraciones) generaciones iteraciones)))
+             (else (list newplayeres ball))))
+        ((< diagonal step)
+         (estela-aux
+          (remplazarDestino (cdr playeres) newplayeres ball) 0
+          (cons (changeMovement (car playeres)) newplayeres)
+          diagonal direction ball (verificarGol ball points (append newplayeres playeres) generaciones iteraciones) generaciones iteraciones))        
+        (else
+         (begin
+            (cond 
+              ((equal? (getteam (car playeres)) "blue")
+                (begin
+                  (((draw-pixmap-posn "player2.png") pixMap)  (make-posn (movementX playeres step diagonal direction)
+                                                              (movementY playeres step diagonal direction))
+                   (getteam (car playeres)))))
+                   (else
+                   (((draw-pixmap-posn "player1.png") pixMap)  (make-posn (movementX playeres step diagonal direction)
+                                                    (movementY playeres step diagonal direction))
+                                          (getteam (car playeres)))
+                    ))
+           (drawplayeres (append newplayeres (cdr playeres)) 1)
+           (drawBall (interseccion (car playeres)
+                                      (movementX playeres step diagonal direction)
+                                      (movementY playeres step diagonal direction)
+                                      ball (append newplayeres (cdr playeres))))
+           (drawWindow)
+           (estela playeres (+ step 18) newplayeres diagonal direction
+                           (cambiarStrengthBall (interseccion (car playeres)
+                                                            (movementX playeres step diagonal direction)
+                                                            (movementY playeres step diagonal direction) ball
+                                                            (append newplayeres (cdr playeres))))
+                           (verificarGol ball points (append playeres newplayeres) generaciones iteraciones) generaciones iteraciones))))))
 
-    #|
+(define (playGameAux players generaciones ball points iteraciones)
+  (playGame
+   (seleccion-reproduction-aux (move players))
+   generaciones ball points iteraciones)
+  )
 
-    (drawPlayers '(((230 250) (800 250))
-                        ((230 300) (450 300))
-                        ((230 350) (350 350))
-                        ((280 250) (800 250))
-                        ((280 300) (450 300))
-                        ((280 350) (350 350))
-                        ((330 350) (350 350))
-                        ((330 250) (800 250))
-                        ((330 300) (450 300))
-                        ((320 350) (350 350))
+(define (playGameGol players generaciones points iteraciones)
+  (playGame (alinear (divideteams players))
+              generaciones '((450 260) 0 0)
+              points iteraciones))
 
-                        ((700 250) (800 250))
-                        ((700 300) (450 300))
-                        ((700 350) (350 350))
-                        ((750 250) (800 250))
-                        ((750 300) (450 300))
-                        ((750 350) (350 350))
-                        ((800 350) (350 350))
-                        ((800 250) (800 250))
-                        ((800 300) (450 300))
-                 
-                  
-                        ) 1)
 
-    |#
+(define (playGame players generaciones ball points iteraciones)
+  (begin
+    (drawField)
+    (writeStrings points generaciones)
+    (display "Generacion: ")
+    (display generaciones)
+    (newline)
+    
+    (cond ((or (> (car points) 2) (> (cadr points) 2))
+           (writeStrings points generaciones))
+          ((< generaciones iteraciones)
+           (playGameAux
+            (estela players 0 '() (hypotenuse (car players)) (getDirection (car players)) ball
+                    points generaciones iteraciones)
+            (+ generaciones 1) ball points iteraciones))
+          (else (writeStrings points generaciones))
+          )
+    
     
     (copy-viewport pixMap mainWindow)
-    ((clear-viewport pixMap))
-    
+    ;((clear-viewport pixMap))
     ))
 
-(playGame)
+(define (makeOneList teams)
+  (append (car teams) (cadr teams))
+  )
+
+(define (firstPlayers form1 form2)
+  (move-aux (inicialitation1 form1) (inicialitation2 form2) firstBall)
+  )
+
+
+(define (CatarCEQualifiers form1 form2 iteraciones)
+  (cond ((or (null? form1) (null? form2)) '())
+        (else
+         (begin
+           (playGame (makeOneList (firstPlayers form1 form2)) 1 firstBall '(0 0) iteraciones)
+           ))
+  ))
+
+
+(CatarCEQualifiers '(4 4 2) '(4 3 3) 4)
