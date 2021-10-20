@@ -2,48 +2,6 @@
 ;; about the language level of this file in a form that our tools can easily process.
 #reader(lib "htdp-advanced-reader.ss" "lang")((modname Genetic) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
 #|
-------------Alinea los equipos en cada campo y segun su tipo de jugador----------------------
-Def: Esta funcion alinea los jugadores de cada equipo
-|#
-
-(define(alinear equipos)
-  (cond((null? equipos) equipos)
-       (else (append (alinear2 (cadr equipos)) (alinear1 (car equipos))))))
-
-(define(alinear1 equipo)
-  (cond((null? equipo) equipo)
-       (else (cons (alinear-jugador1 (car equipo)) (alinear1 (cdr equipo))))))
-
-(define(alinear2 equipo)
-  (cond((null? equipo) equipo)
-       (else (cons (alinear-jugador2 (car equipo)) (alinear2 (cdr equipo))))))
-
-(define(alinear-jugador1 jugador)
-  (cond((null? jugador) jugador)
-       ((equal? 1 (car(cdddr jugador)))
-        (list (list 5 (+ 180 (random 180))) (list 0 0) (caddr jugador) 1 (cadr(cdddr jugador)) "red"))
-       ((equal? 2 (car(cdddr jugador)))
-        (list (list (+ 90 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr jugador) 2 (cadr(cdddr jugador)) "red"))
-       ((equal? 3 (car(cdddr jugador)))
-        (list (list (+ 260 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr jugador) 3 (cadr(cdddr jugador)) "red"))
-       (else
-        (list (list (+ 400 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr jugador) 4 (cadr(cdddr jugador)) "red"))))
-
-(define(alinear-jugador2 jugador)
-  (cond((null? jugador) jugador)
-       ((equal? 1 (car(cdddr jugador)))
-        (list (list 895 (+ 180 (random 180))) (list 0 0) (caddr jugador) 1 (cadr(cdddr jugador)) "blue"))
-       ((equal? 2 (car(cdddr jugador)))
-        (list (list (+ 750 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr jugador) 2 (cadr(cdddr jugador)) "blue"))
-       ((equal? 3 (car(cdddr jugador)))
-        (list (list (+ 600 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr jugador) 3 (cadr(cdddr jugador)) "blue"))
-       (else
-        (list (list (+ 465 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr jugador) 4 (cadr(cdddr jugador)) "blue"))))
-
-
-
-
-#|
 ------------------------------------Primera generacion para ambos equipos------------------------------------
 Def: Estas funciones se encargan de crear cada jugador con sus posicion, equipo y habilidades.
      Tambien se encargan de crear el equipo segun la formacion requerida por el usuario.
