@@ -577,6 +577,18 @@ Se coloca la imagen que refleja la cancha.
     ((draw-pixmap pixMap) "background.jpg" (make-posn 0 0)) 
     ))
 
+(define (winner1)
+  (begin
+    ((draw-solid-rectangle pixMap) (make-posn 0 0) 1220 720 "black")
+    (((draw-pixmap-posn "jugador1gana.png") pixMap) (make-posn 290 220)) 
+    ))
+
+(define (winner2)
+  (begin
+    ((draw-solid-rectangle pixMap) (make-posn 0 0) 1220 720 "black")
+    (((draw-pixmap-posn "jugador2gana.png") pixMap) (make-posn 290 220))
+    
+    ))
 
 
 
@@ -875,6 +887,25 @@ jugador.
               generaciones '((450 260) 0 0)
               points iteraciones))
 
+(define (winner points)
+(cond (
+       ;Gana el jugador 1
+       ((= (car points) (+ 3 (cadr points)))
+        (begin
+          (winner1)
+          (drawWindow))
+
+        )
+       ;Gana el jugador 2
+       ((= (+ 3 (car points)) (cadr points))
+        (begin
+          (winner2)
+          (drawWindow))
+        )
+
+       ))
+  )
+
 
 (define (playGame players generaciones ball points iteraciones)
   (begin
@@ -884,8 +915,11 @@ jugador.
     (display generaciones)
     (newline)
     
-    (cond ((or (> (car points) 2) (> (cadr points) 2))
-           (writeStrings points generaciones))
+    (cond ((or (= (car points) (+ 3 (cadr points))) (= (+ 3 (car points)) (cadr points)))
+           (begin
+             (writeStrings points generaciones)
+             (winner points)
+             ))
           ((< generaciones iteraciones)
            (playGameAux
             (estela players 0 '() (hypotenuse (car players)) (getDirection (car players)) ball
@@ -917,4 +951,4 @@ jugador.
   ))
 
 
-(CatarCEQualifiers '(4 4 2) '(4 3 3) 4)
+(CatarCEQualifiers '(4 4 2) '(4 3 3) 20)
