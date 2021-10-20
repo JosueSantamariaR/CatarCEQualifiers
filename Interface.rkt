@@ -7,6 +7,135 @@
 ;Se inicializa la libreria encargada del uso de la parte grafica.
 (open-graphics)
 
+
+#|
+-------------------------------------Aptitud--------------------------------------
+Def: 
+
+|#
+
+(define (fitness-eq equipo)
+  (cond((null? equipo) equipo)
+       (else( cons (fitness (car equipo)) (fitness-eq (cdr equipo))))))
+
+(define (fitness player)
+  (cond((null? player) player)
+       (else (list(car player) (cadr player) (fitness-aux (caddr player)) (car(cdddr player)) (cadr(cdddr player))))))
+
+(define (fitness-aux skills)
+  (cond((null? skills) skills)
+       (else(cons (suma (cdr skills)) (cdr skills)))))
+
+(define(suma lista)
+  (cond((null? lista) 0)
+       (else(+ (car lista) (suma (cdr lista))))))
+
+
+#|
+-------------------------------------Aux-Formacion--------------------------------------
+Def: 
+
+|#
+
+(define (obtenerFormacion playeres  num1 num2 num3)
+  (cond((null? playeres) (list num1 num2 num3))
+       ((equal? (obtenerNumTipo (car playeres)) 2) (obtenerFormacion (cdr playeres) (+ num1 1) num2 num3))
+       ((equal? (obtenerNumTipo (car playeres)) 3) (obtenerFormacion (cdr playeres) num1 (+ num2 1) num3))
+       ((equal? (obtenerNumTipo (car playeres)) 4) (obtenerFormacion(cdr playeres)  num1 num2 (+ num3 1)))
+       (else
+        (obtenerFormacion (cdr playeres) num1 num2 num3))))
+
+
+#|
+-------------------------------------Seleccion--------------------------------------
+Def: 
+
+|#
+
+(define (seleccion-reproduction-aux teams)
+  (append (seleccion-reproduction (obtenerFormacion (car teams) 0 0 0) (car teams))
+          (seleccion-reproduction (obtenerFormacion (cadr teams) 0 0 0) (cadr teams)))
+  )
+
+(define (seleccion-reproduction formacion equipo)
+  (cond((null? equipo) equipo)
+       (else
+        (asignar-caracts
+         (mutation
+          (reproduction
+           (crear-hijos (+ 1 (car formacion) (cadr formacion) (caddr formacion)) (mejores(retornar-caracts equipo)))))
+         equipo))))
+
+;;3
+(define (crear-hijos num padres)
+  (cond((even? num) (append (crearhijos-aux (quotient num 2) (car padres)) (crearhijos-aux (quotient num 2) (cadr padres))))
+       (else(append (crearhijos-aux (+ 1 (quotient num 2)) (car padres)) (crearhijos-aux (quotient num 2) (cadr padres))))))
+
+;;3.1
+(define(crearhijos-aux num padre)
+  (cond((= num 1) (list padre))
+       (else (append (list padre) (crearhijos-aux (- num 1) padre)))))
+
+;;1
+(define (retornar-caracts equipo)
+  (cond((null? equipo) equipo)
+       (else(cons (caddr(car equipo)) (retornar-caracts (cdr equipo))))))
+;;2
+(define (mejores lista)
+  (cond((null? lista) lista)
+       (else
+        (list (mayor (car lista) (cdr lista))
+              (mayor (car(eliminar (mayor (car lista) (cdr lista)) lista))
+                     (eliminar (mayor (car lista) (cdr lista)) lista))))))
+;;2.1
+(define (mayor actual lista)
+  (cond((null? lista) actual)
+       ((> (car actual) (caar lista)) (mayor actual (cdr lista)))
+       ((< (car actual) (caar lista)) (mayor (car lista) (cdr lista)))
+       (else(mayor actual (cdr lista)))))
+;;2.2
+(define(eliminar num lista)
+  (cond((null? lista) (list))
+       ((equal? (car num) (caar lista)) (cdr lista))
+       (else (cons (car lista) (eliminar num (cdr lista))))))
+
+;Funciones extra para la seleccion----------------------------
+(define(asignar-caracts carac equipo)
+  (cond((null? equipo) '())
+       (else (cons (asignar-aux (car carac) (car equipo)) (asignar-caracts (cdr carac) (cdr equipo))))))
+
+(define(asignar-aux hab player)
+  (cond((or (null? hab) (null? player)) player)
+       (else (list(car player) (cadr player) hab (car(cdddr player)) (cadr(cdddr player)) (obtenerEquipo player)))))
+
+#|
+-------------------------------------Reproduccion--------------------------------------
+Def: Obtiene los jugadores y de cada uno de ellos se obtiene las habilidades que se generaron en random
+     estas habilidades se utilizan para crear nuevas e ir combinandolas entre el ultimo y el primero
+|#
+
+(define(reproduction lista)
+  (cond((null? lista) lista)
+       ((null? (cdr lista)) lista)
+       (else(append (combinar (car lista) (ultimo (car lista) lista)) (reproduction (sin-ultimo(cdr lista)))))))
+
+(define(combinar skills1 skills2)
+  (cond((or (null? skills1) (null? skills2)) (list skills1 skills2))
+       (else(cons (combinar-aux (+ 1 (random 5)) skills1 skills2) (list (combinar-aux (+ 1 (random 5)) skills1 skills2))))))
+
+(define(combinar-aux num hab1 hab2)
+  (cond((or (null? hab1) (= num 0)) hab2)
+       (else(cons (car hab1) (combinar-aux (- num 1) (cdr hab1) (cdr hab2))))))
+
+(define(ultimo actual lista)
+  (cond((null? lista) actual)
+       (else (ultimo (car lista) (cdr lista)))))
+
+(define(sin-ultimo lista)
+  (cond((null? (cdr lista)) '())
+       (else(cons (car lista) (sin-ultimo (cdr lista))))))
+
+
 #|
 -------------------------------------Mutacion------------------------------------
 Def: Comienza a tomar las habilidades del jugador para posteriormente con un random
