@@ -7,6 +7,23 @@
 ;Se inicializa la libreria encargada del uso de la parte grafica.
 (open-graphics)
 
+#|
+-------------------------------------Mutacion------------------------------------
+Def: Comienza a tomar las habilidades del jugador para posteriormente con un random
+     hacer diferentes operaciones y obtener un nuevo jugador con estos cambios.
+|#
+(define(mutation skills)
+  (cond((null? skills) skills)
+       (else(cons (mutation-aux (car skills)) (mutation (cdr skills))))))
+
+(define (mutation-aux hab)
+  (cond((< (random 100) 30) (mutar (+ 1 (random 4)) hab))
+       (else hab)))
+
+(define(mutar corte hab)
+  (cond((zero? corte) (cons (random 11) (cdr hab)))
+       (else (cons (car hab) (mutar (- corte 1) (cdr hab))))))
+
 
 #|
 ------------------------------------Alinea los equipos------------------------------------
