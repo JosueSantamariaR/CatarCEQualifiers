@@ -14,9 +14,9 @@ Def: Se
 
 |#
 
-(define (fitness-eq equipo)
-  (cond((null? equipo) equipo)
-       (else( cons (fitness (car equipo)) (fitness-eq (cdr equipo))))))
+(define (fitness-eq team)
+  (cond((null? team) team)
+       (else( cons (fitness (car team)) (fitness-eq (cdr team))))))
 
 (define (fitness player)
   (cond((null? player) player)
@@ -26,9 +26,9 @@ Def: Se
   (cond((null? skills) skills)
        (else(cons (suma (cdr skills)) (cdr skills)))))
 
-(define(suma lista)
-  (cond((null? lista) 0)
-       (else(+ (car lista) (suma (cdr lista))))))
+(define(suma listT)
+  (cond((null? listT) 0)
+       (else(+ (car listT) (suma (cdr listT))))))
 
 
 #|
@@ -37,13 +37,13 @@ Def:
 
 |#
 
-(define (obtenerFormacion playeres  num1 num2 num3)
+(define (getFormacion playeres  num1 num2 num3)
   (cond((null? playeres) (list num1 num2 num3))
-       ((equal? (obtenerNumTipo (car playeres)) 2) (obtenerFormacion (cdr playeres) (+ num1 1) num2 num3))
-       ((equal? (obtenerNumTipo (car playeres)) 3) (obtenerFormacion (cdr playeres) num1 (+ num2 1) num3))
-       ((equal? (obtenerNumTipo (car playeres)) 4) (obtenerFormacion(cdr playeres)  num1 num2 (+ num3 1)))
+       ((equal? (getNumType (car playeres)) 2) (getFormacion (cdr playeres) (+ num1 1) num2 num3))
+       ((equal? (getNumType (car playeres)) 3) (getFormacion (cdr playeres) num1 (+ num2 1) num3))
+       ((equal? (getNumType (car playeres)) 4) (getFormacion(cdr playeres)  num1 num2 (+ num3 1)))
        (else
-        (obtenerFormacion (cdr playeres) num1 num2 num3))))
+        (getFormacion (cdr playeres) num1 num2 num3))))
 
 
 #|
@@ -53,18 +53,18 @@ Def:
 |#
 
 (define (seleccion-reproduction-aux teams)
-  (append (seleccion-reproduction (obtenerFormacion (car teams) 0 0 0) (car teams))
-          (seleccion-reproduction (obtenerFormacion (cadr teams) 0 0 0) (cadr teams)))
+  (append (seleccion-reproduction (getFormacion (car teams) 0 0 0) (car teams))
+          (seleccion-reproduction (getFormacion (cadr teams) 0 0 0) (cadr teams)))
   )
 
-(define (seleccion-reproduction formacion equipo)
-  (cond((null? equipo) equipo)
+(define (seleccion-reproduction formacion team)
+  (cond((null? team) team)
        (else
         (asignar-caracts
          (mutation
           (reproduction
-           (crear-hijos (+ 1 (car formacion) (cadr formacion) (caddr formacion)) (mejores(retornar-caracts equipo)))))
-         equipo))))
+           (crear-hijos (+ 1 (car formacion) (cadr formacion) (caddr formacion)) (mejores(retornar-caracts team)))))
+         team))))
 
 ;;3
 (define (crear-hijos num padres)
@@ -77,36 +77,36 @@ Def:
        (else (append (list padre) (crearhijos-aux (- num 1) padre)))))
 
 ;;1
-(define (retornar-caracts equipo)
-  (cond((null? equipo) equipo)
-       (else(cons (caddr(car equipo)) (retornar-caracts (cdr equipo))))))
+(define (retornar-caracts team)
+  (cond((null? team) team)
+       (else(cons (caddr(car team)) (retornar-caracts (cdr team))))))
 ;;2
-(define (mejores lista)
-  (cond((null? lista) lista)
+(define (mejores listT)
+  (cond((null? listT) listT)
        (else
-        (list (mayor (car lista) (cdr lista))
-              (mayor (car(eliminar (mayor (car lista) (cdr lista)) lista))
-                     (eliminar (mayor (car lista) (cdr lista)) lista))))))
+        (list (mayor (car listT) (cdr listT))
+              (mayor (car(eliminar (mayor (car listT) (cdr listT)) listT))
+                     (eliminar (mayor (car listT) (cdr listT)) listT))))))
 ;;2.1
-(define (mayor actual lista)
-  (cond((null? lista) actual)
-       ((> (car actual) (caar lista)) (mayor actual (cdr lista)))
-       ((< (car actual) (caar lista)) (mayor (car lista) (cdr lista)))
-       (else(mayor actual (cdr lista)))))
+(define (mayor actual listT)
+  (cond((null? listT) actual)
+       ((> (car actual) (caar listT)) (mayor actual (cdr listT)))
+       ((< (car actual) (caar listT)) (mayor (car listT) (cdr listT)))
+       (else(mayor actual (cdr listT)))))
 ;;2.2
-(define(eliminar num lista)
-  (cond((null? lista) (list))
-       ((equal? (car num) (caar lista)) (cdr lista))
-       (else (cons (car lista) (eliminar num (cdr lista))))))
+(define(eliminar num listT)
+  (cond((null? listT) (list))
+       ((equal? (car num) (caar listT)) (cdr listT))
+       (else (cons (car listT) (eliminar num (cdr listT))))))
 
 ;Funciones extra para la seleccion----------------------------
-(define(asignar-caracts carac equipo)
-  (cond((null? equipo) '())
-       (else (cons (asignar-aux (car carac) (car equipo)) (asignar-caracts (cdr carac) (cdr equipo))))))
+(define(asignar-caracts carac team)
+  (cond((null? team) '())
+       (else (cons (asignar-aux (car carac) (car team)) (asignar-caracts (cdr carac) (cdr team))))))
 
 (define(asignar-aux hab player)
   (cond((or (null? hab) (null? player)) player)
-       (else (list(car player) (cadr player) hab (car(cdddr player)) (cadr(cdddr player)) (obtenerEquipo player)))))
+       (else (list(car player) (cadr player) hab (car(cdddr player)) (cadr(cdddr player)) (getteam player)))))
 
 #|
 -------------------------------------Reproduccion--------------------------------------
@@ -114,10 +114,10 @@ Def: Obtiene los jugadores y de cada uno de ellos se obtiene las habilidades que
      estas habilidades se utilizan para crear nuevas e ir combinandolas entre el ultimo y el primero
 |#
 
-(define(reproduction lista)
-  (cond((null? lista) lista)
-       ((null? (cdr lista)) lista)
-       (else(append (combinar (car lista) (ultimo (car lista) lista)) (reproduction (sin-ultimo(cdr lista)))))))
+(define(reproduction listT)
+  (cond((null? listT) listT)
+       ((null? (cdr listT)) listT)
+       (else(append (combinar (car listT) (ultimo (car listT) listT)) (reproduction (sin-ultimo(cdr listT)))))))
 
 (define(combinar skills1 skills2)
   (cond((or (null? skills1) (null? skills2)) (list skills1 skills2))
@@ -127,13 +127,13 @@ Def: Obtiene los jugadores y de cada uno de ellos se obtiene las habilidades que
   (cond((or (null? hab1) (= num 0)) hab2)
        (else(cons (car hab1) (combinar-aux (- num 1) (cdr hab1) (cdr hab2))))))
 
-(define(ultimo actual lista)
-  (cond((null? lista) actual)
-       (else (ultimo (car lista) (cdr lista)))))
+(define(ultimo actual listT)
+  (cond((null? listT) actual)
+       (else (ultimo (car listT) (cdr listT)))))
 
-(define(sin-ultimo lista)
-  (cond((null? (cdr lista)) '())
-       (else(cons (car lista) (sin-ultimo (cdr lista))))))
+(define(sin-ultimo listT)
+  (cond((null? (cdr listT)) '())
+       (else(cons (car listT) (sin-ultimo (cdr listT))))))
 
 
 #|
@@ -141,6 +141,7 @@ Def: Obtiene los jugadores y de cada uno de ellos se obtiene las habilidades que
 Def: Comienza a tomar las habilidades del jugador para posteriormente con un random
      hacer diferentes operaciones y obtener un nuevo jugador con estos cambios.
 |#
+
 (define(mutation skills)
   (cond((null? skills) skills)
        (else(cons (mutation-aux (car skills)) (mutation (cdr skills))))))
@@ -164,13 +165,13 @@ Def: Esta funcion se encarga de alinear cada jugador en los equipos, asi como se
   (cond((null? teams) teams)
        (else (append (alinear2 (cadr teams)) (alinear1 (car teams))))))
 
-(define(alinear1 equipo)
-  (cond((null? equipo) equipo)
-       (else (cons (alinear-player1 (car equipo)) (alinear1 (cdr equipo))))))
+(define(alinear1 team)
+  (cond((null? team) team)
+       (else (cons (alinear-player1 (car team)) (alinear1 (cdr team))))))
 
-(define(alinear2 equipo)
-  (cond((null? equipo) equipo)
-       (else (cons (alinear-player2 (car equipo)) (alinear2 (cdr equipo))))))
+(define(alinear2 team)
+  (cond((null? team) team)
+       (else (cons (alinear-player2 (car team)) (alinear2 (cdr team))))))
 
 (define(alinear-player1 player)
   (cond((null? player) player)
@@ -194,8 +195,6 @@ Def: Esta funcion se encarga de alinear cada jugador en los equipos, asi como se
        (else
         (list (list (+ 465 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr player) 4 (cadr(cdddr player)) "blue"))))
 
-
-
 #|
 ------------------------------------Primera generacion para ambos teams------------------------------------
 Def: Estas funciones se encargan de crear cada player con sus posicion, equipo y skills.
@@ -205,23 +204,23 @@ Def: Estas funciones se encargan de crear cada player con sus posicion, equipo y
 
 ;-----------------------Crea skills, posicion y skills random------------------------
 
-(define (player-1er tipo num)
-  (cond((equal? 1 tipo)
+(define (player-1er Type num)
+  (cond((equal? 1 Type)
         (list (list 5 (+ 180 (random 180))) (list 0 0) (list 0 (random 11) (random 11) (random 11) (random 11)) 1 num "red"))
-       ((equal? 2 tipo)
+       ((equal? 2 Type)
         (list (list (+ 90 (random 50)) (+ 5 (random 510))) (list 0 0) (list 0 (random 11) (random 11) (random 11) (random 11)) 2 num "red"))
-       ((equal? 3 tipo)
+       ((equal? 3 Type)
         (list (list (+ 260 (random 50)) (+ 5 (random 510))) (list 0 0) (list 0 (random 11) (random 11) (random 11) (random 11)) 3 num "red"))
        (else
         (list (list (+ 400 (random 50)) (+ 5 (random 510))) (list 0 0) (list 0 (random 11) (random 11) (random 11) (random 11)) 4 num "red"))
        ))
 
-(define (player-2do tipo num)
-  (cond ((equal? 1 tipo)
+(define (player-2do Type num)
+  (cond ((equal? 1 Type)
          (list (list 895 (+ 180 (random 180))) (list 0 0) (list 0 (random 11) (random 11) (random 11) (random 11)) 1 num "blue"))
-        ((equal? 2 tipo)
+        ((equal? 2 Type)
          (list (list (+ 750 (random 50)) (+ 5 (random 510))) (list 0 0) (list 0 (random 11) (random 11) (random 11) (random 11)) 2 num "blue"))
-        ((equal? 3 tipo)
+        ((equal? 3 Type)
          (list (list (+ 600 (random 50)) (+ 5 (random 510))) (list 0 0) (list 0 (random 11) (random 11) (random 11) (random 11)) 3 num "blue"))
         (else
          (list (list (+ 465 (random 50)) (+ 5 (random 510))) (list 0 0) (list 0 (random 11) (random 11) (random 11) (random 11)) 4 num "blue"))
@@ -266,11 +265,6 @@ Def: Estas funciones se encargan de crear cada player con sus posicion, equipo y
         (else
          (inic-aux2 (+ 1 (car formacion) (cadr formacion) (caddr formacion)) formacion))
         ))
-
-
-
-
-
 
 #|
 --------------------------------------Creacion de las ventanas----------------------------------------
