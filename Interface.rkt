@@ -8,6 +8,46 @@
 (open-graphics)
 
 
+#|
+------------------------------------Alinea los equipos------------------------------------
+Def: Esta funcion se encarga de alinear cada jugador en los equipos, asi como segun su tipo
+     lo posiciones donde debe de ir
+|#
+
+(define(alinear teams)
+  (cond((null? teams) teams)
+       (else (append (alinear2 (cadr teams)) (alinear1 (car teams))))))
+
+(define(alinear1 equipo)
+  (cond((null? equipo) equipo)
+       (else (cons (alinear-player1 (car equipo)) (alinear1 (cdr equipo))))))
+
+(define(alinear2 equipo)
+  (cond((null? equipo) equipo)
+       (else (cons (alinear-player2 (car equipo)) (alinear2 (cdr equipo))))))
+
+(define(alinear-player1 player)
+  (cond((null? player) player)
+       ((equal? 1 (car(cdddr player)))
+        (list (list 5 (+ 180 (random 180))) (list 0 0) (caddr player) 1 (cadr(cdddr player)) "red"))
+       ((equal? 2 (car(cdddr player)))
+        (list (list (+ 90 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr player) 2 (cadr(cdddr player)) "red"))
+       ((equal? 3 (car(cdddr player)))
+        (list (list (+ 260 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr player) 3 (cadr(cdddr player)) "red"))
+       (else
+        (list (list (+ 400 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr player) 4 (cadr(cdddr player)) "red"))))
+
+(define(alinear-player2 player)
+  (cond((null? player) player)
+       ((equal? 1 (car(cdddr player)))
+        (list (list 895 (+ 180 (random 180))) (list 0 0) (caddr player) 1 (cadr(cdddr player)) "blue"))
+       ((equal? 2 (car(cdddr player)))
+        (list (list (+ 750 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr player) 2 (cadr(cdddr player)) "blue"))
+       ((equal? 3 (car(cdddr player)))
+        (list (list (+ 600 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr player) 3 (cadr(cdddr player)) "blue"))
+       (else
+        (list (list (+ 465 (random 50)) (+ 5 (random 510))) (list 0 0) (caddr player) 4 (cadr(cdddr player)) "blue"))))
+
 
 
 #|
