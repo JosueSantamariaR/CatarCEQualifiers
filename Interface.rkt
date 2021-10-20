@@ -1,4 +1,7 @@
-#lang racket/gui
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname Interface) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #f)))
+
 (require graphics/graphics)
 (require 2htdp/image)
 (require racket/math)
@@ -907,6 +910,25 @@ jugador.
   )
 
 
+(define (winnerGeneration points)
+(cond (
+       ;Gana el jugador 1
+       ((> (car points) (cadr points))
+        (begin
+          (winner1)
+          (drawWindow))
+
+        )
+       ;Gana el jugador 2
+       ((<  (car points) (cadr points))
+        (begin
+          (winner2)
+          (drawWindow))
+        )
+       ))
+  )
+
+
 (define (playGame players generaciones ball points iteraciones)
   (begin
     (drawField)
@@ -925,8 +947,13 @@ jugador.
             (estela players 0 '() (hypotenuse (car players)) (getDirection (car players)) ball
                     points generaciones iteraciones)
             (+ generaciones 1) ball points iteraciones))
-          (else (writeStrings points generaciones))
-          )
+          (else
+           (begin
+             (writeStrings points generaciones)
+             (winnerGeneration points)
+                    ))   )
+           
+          
     
     
     (copy-viewport pixMap mainWindow)
@@ -951,4 +978,4 @@ jugador.
   ))
 
 
-(CatarCEQualifiers '(4 4 2) '(4 3 3) 20)
+(CatarCEQualifiers '(8 1 1) '(1 8 1) 20)
